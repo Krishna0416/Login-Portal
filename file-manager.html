@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Storage Manager - Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="advanced-features.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .file-manager {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: var(--color-background);
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .file-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .file-action-card {
+            padding: 1.5rem;
+            background: var(--color-background-secondary);
+            border-radius: var(--border-radius);
+            border: 1px solid var(--color-border);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-action-card:hover {
+            background: var(--color-background-tertiary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .file-action-icon {
+            font-size: 2rem;
+            color: var(--color-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .file-info {
+            background: var(--color-background-secondary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1rem;
+        }
+        
+        .users-list {
+            background: var(--color-background-secondary);
+            border-radius: var(--border-radius);
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .user-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--color-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-item:last-child {
+            border-bottom: none;
+        }
+        
+        .user-details {
+            flex: 1;
+        }
+        
+        .user-email {
+            font-weight: 600;
+            color: var(--color-text-primary);
+        }
+        
+        .user-meta {
+            font-size: 0.875rem;
+            color: var(--color-text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        .file-input {
+            margin: 1rem 0;
+        }
+        
+        .hidden-input {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <span class="logo-text">File Storage Manager</span>
+                </div>
+                <div class="header-actions">
+                    <a href="index.html" class="nav-link" title="Back to Login">
+                        <i class="fas fa-home"></i>
+                    </a>
+                    <a href="test-storage.html" class="nav-link" title="Test Storage">
+                        <i class="fas fa-vial"></i>
+                    </a>
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <div class="file-manager">
+                <h1>User Data File Management</h1>
+                <p>Manage user data storage and file operations</p>
+
+                <div class="file-info" id="fileInfo">
+                    <h3>Current Storage Status</h3>
+                    <p><strong>Total Users:</strong> <span id="userCount">Loading...</span></p>
+                    <p><strong>Last Updated:</strong> <span id="lastUpdated">Loading...</span></p>
+                    <p><strong>Storage Method:</strong> JSON File (users.json)</p>
+                </div>
+
+                <div class="file-actions">
+                    <div class="file-action-card" onclick="exportUsers()">
+                        <div class="file-action-icon">
+                            <i class="fas fa-download"></i>
+                        </div>
+                        <h3>Export Users</h3>
+                        <p>Download current user data as JSON file</p>
+                    </div>
+
+                    <div class="file-action-card" onclick="importUsers()">
+                        <div class="file-action-icon">
+                            <i class="fas fa-upload"></i>
+                        </div>
+                        <h3>Import Users</h3>
+                        <p>Upload users from JSON file</p>
+                    </div>
+
+                    <div class="file-action-card" onclick="createBackup()">
+                        <div class="file-action-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3>Create Backup</h3>
+                        <p>Create timestamped backup file</p>
+                    </div>
+
+                    <div class="file-action-card" onclick="clearData()">
+                        <div class="file-action-icon">
+                            <i class="fas fa-trash-alt"></i>
+                        </div>
+                        <h3>Clear Data</h3>
+                        <p>Remove all user data (with confirmation)</p>
+                    </div>
+                </div>
+
+                <input type="file" id="fileInput" class="hidden-input" accept=".json" onchange="handleFileImport(this)">
+
+                <div class="users-list">
+                    <h3>Current Users</h3>
+                    <div id="usersList">
+                        Loading users...
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="file-storage.js"></script>
+    <script>
+        let users = [];
+
+        // Initialize file manager
+        async function initFileManager() {
+            try {
+                users = await fileStorage.loadUsers();
+                updateUI();
+            } catch (error) {
+                console.error('Failed to load users:', error);
+                document.getElementById('usersList').innerHTML = '<p>Error loading users</p>';
+            }
+        }
+
+        // Update UI with current data
+        function updateUI() {
+            document.getElementById('userCount').textContent = users.length;
+            document.getElementById('lastUpdated').textContent = new Date().toLocaleString();
+            
+            const usersList = document.getElementById('usersList');
+            if (users.length === 0) {
+                usersList.innerHTML = '<p>No users found</p>';
+                return;
+            }
+
+            usersList.innerHTML = users.map(user => `
+                <div class="user-item">
+                    <div class="user-details">
+                        <div class="user-email">${user.email}</div>
+                        <div class="user-meta">
+                            Username: ${user.username || 'N/A'} | 
+                            Created: ${new Date(user.createdAt || user.registrationDate).toLocaleDateString()} |
+                            Verified: ${user.emailVerified ? '✅' : '❌'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Export users to file
+        async function exportUsers() {
+            try {
+                await fileStorage.exportUsersFile(users);
+                showNotification('Users exported successfully!', 'success');
+            } catch (error) {
+                showNotification('Export failed: ' + error.message, 'error');
+            }
+        }
+
+        // Import users from file
+        function importUsers() {
+            document.getElementById('fileInput').click();
+        }
+
+        // Handle file import
+        async function handleFileImport(input) {
+            try {
+                const importedUsers = await fileStorage.importUsersFile(input);
+                
+                if (confirm(`Import ${importedUsers.length} users? This will replace current data.`)) {
+                    users = importedUsers;
+                    await fileStorage.saveUsers(users);
+                    updateUI();
+                    showNotification(`Imported ${importedUsers.length} users successfully!`, 'success');
+                }
+            } catch (error) {
+                showNotification('Import failed: ' + error.message, 'error');
+            }
+        }
+
+        // Create backup
+        async function createBackup() {
+            try {
+                fileStorage.createBackup(users);
+                showNotification('Backup created successfully!', 'success');
+            } catch (error) {
+                showNotification('Backup failed: ' + error.message, 'error');
+            }
+        }
+
+        // Clear all data
+        async function clearData() {
+            if (confirm('Are you sure you want to delete all user data? This cannot be undone.')) {
+                if (confirm('This will permanently delete all user accounts. Are you absolutely sure?')) {
+                    users = [];
+                    await fileStorage.saveUsers(users);
+                    updateUI();
+                    showNotification('All user data cleared', 'warning');
+                }
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `toast toast-${type}`;
+            notification.textContent = message;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        // Theme toggle
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            const icon = this.querySelector('i');
+            icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        // Initialize theme
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            const themeIcon = document.querySelector('#themeToggle i');
+            themeIcon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            initFileManager();
+        });
+    </script>
+</body>
+</html>

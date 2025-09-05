@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Portal</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#10a37f">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJhMTAgMTAgMCAxIDAgMTAgMTBjMC0uMzkgMC0uMzktLjA2LS43OC0uMzYtMS45Mi0xLjQxLTMuNjEtMi45NC00Ljc2YTE0IDE0IDAgMCAwLTcuNTYgMEMxMCA0LjYxIDkuMDEgNi4zIDguNjUgOC4yMiA4LjU5IDguNjEgOC41OSA4LjYxIDguNjUgOWExMCAxMCAwIDAgMCAzLjM1LTciIGZpbGw9IiMxMGEzN2YiLz4KPC9zdmc+">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="advanced-features.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="header-left">
+                    <div class="logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <span class="logo-text">Portal</span>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="header-actions">
+                        <!-- AI Security Status Indicator -->
+                        <div class="security-status" id="securityStatus" title="AI Security Monitor">
+                            <i class="fas fa-shield-alt"></i>
+                            <span class="status-dot"></span>
+                        </div>
+                        
+                        <!-- Smart Search Button -->
+                        <button class="search-button" id="searchButton" title="Intelligent Search">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        
+                        <!-- Notifications Button -->
+                        <button class="notifications-button" id="notificationsButton" title="Notifications">
+                            <i class="fas fa-bell"></i>
+                            <span class="notification-badge hidden" id="notificationBadge">0</span>
+                        </button>
+                        
+                        <!-- Analytics Button -->
+                        <button class="analytics-button" id="analyticsButton" title="Analytics Dashboard">
+                            <i class="fas fa-chart-line"></i>
+                        </button>
+                        
+                        <button class="theme-toggle" id="themeToggle" aria-label="Toggle dark mode">
+                            <i class="fas fa-moon"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="user-menu">
+                        <button class="user-profile" id="userProfileBtn">
+                            <img src="" alt="User" id="userAvatarHeader" class="user-avatar">
+                            <span class="user-name" id="userNameHeader">User</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        
+                        <div class="dropdown-menu hidden" id="userDropdown">
+                            <div class="dropdown-item" onclick="editProfile()">
+                                <i class="fas fa-user"></i>
+                                <span>Profile</span>
+                            </div>
+                            <div class="dropdown-item" onclick="accountSettings()">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </div>
+                            <div class="dropdown-divider"></div>
+                            <div class="dropdown-item logout" onclick="logout()">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Sign out</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-container">
+                <!-- Welcome Section -->
+                <section class="welcome-section">
+                    <div class="welcome-header">
+                        <h1 id="welcomeGreeting">Good morning</h1>
+                        <p id="welcomeMessage">Welcome back to your dashboard</p>
+                    </div>
+                    <div class="welcome-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value" id="daysSinceJoin">0</span>
+                                <span class="stat-label">Days active</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value" id="totalLogins">1</span>
+                                <span class="stat-label">Total visits</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-icon">
+                                <i class="fas fa-shield-check"></i>
+                            </div>
+                            <div class="stat-content">
+                                <span class="stat-value">Secure</span>
+                                <span class="stat-label">Account status</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Profile Overview -->
+                <section class="profile-section">
+                    <div class="section-header">
+                        <h2>Profile Overview</h2>
+                        <button class="edit-button" onclick="editProfile()">
+                            <i class="fas fa-edit"></i>
+                            Edit
+                        </button>
+                    </div>
+                    
+                    <div class="profile-card">
+                        <div class="profile-info">
+                            <div class="profile-avatar">
+                                <img src="" alt="User" id="dashboardAvatar">
+                                <div class="status-indicator"></div>
+                            </div>
+                            <div class="profile-details">
+                                <h3 id="userName">John Doe</h3>
+                                <p class="profile-role">Member</p>
+                                <div class="profile-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-envelope"></i>
+                                        <span id="userEmail">john.doe@example.com</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-phone"></i>
+                                        <span id="userMobile">+1 (555) 123-4567</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-calendar"></i>
+                                        <span>Joined <span id="joinDate">January 2024</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="verification-status">
+                            <div class="status-item verified">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Email verified</span>
+                            </div>
+                            <div class="status-item verified">
+                                <i class="fas fa-check-circle"></i>
+                                <span>Phone verified</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Quick Actions -->
+                <section class="actions-section">
+                    <div class="section-header">
+                        <h2>Quick Actions</h2>
+                    </div>
+                    
+                    <div class="actions-grid">
+                        <div class="action-card" onclick="editProfile()">
+                            <div class="action-icon">
+                                <i class="fas fa-user-edit"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Edit Profile</h3>
+                                <p>Update your personal information and preferences</p>
+                            </div>
+                            <div class="action-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card" onclick="changePassword()">
+                            <div class="action-icon">
+                                <i class="fas fa-key"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Change Password</h3>
+                                <p>Update your account password for security</p>
+                            </div>
+                            <div class="action-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card" onclick="viewActivity()">
+                            <div class="action-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Activity Log</h3>
+                                <p>View your recent account activity and logins</p>
+                            </div>
+                            <div class="action-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card" onclick="window.advancedFeatures?.analytics?.showAnalytics?.()">
+                            <div class="action-icon">
+                                <i class="fas fa-chart-bar"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Analytics Dashboard</h3>
+                                <p>View detailed analytics and insights</p>
+                            </div>
+                            <div class="action-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="action-card" onclick="accountSettings()">
+                            <div class="action-icon">
+                                <i class="fas fa-cog"></i>
+                            </div>
+                            <div class="action-content">
+                                <h3>Account Settings</h3>
+                                <p>Manage your account preferences and privacy</p>
+                            </div>
+                            <div class="action-arrow">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Activity -->
+                <section class="activity-section">
+                    <div class="section-header">
+                        <h2>Recent Activity</h2>
+                        <button class="view-all-button">
+                            View all
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-sign-in-alt"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p><strong>Signed in</strong> to your account</p>
+                                <span class="activity-time" id="lastLoginTime">Just now</span>
+                            </div>
+                        </div>
+                        
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p><strong>Account created</strong> and email verified</p>
+                                <span class="activity-time" id="accountCreatedTime">Recently</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-content">
+                <p>&copy; 2025 Portal. All rights reserved.</p>
+                <div class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Support</a>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay hidden" id="editProfileModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Edit Profile</h3>
+                <button class="modal-close" onclick="closeModal('editProfileModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form id="editProfileForm" class="modal-form">
+                    <div class="form-group">
+                        <label for="editUsername">Username</label>
+                        <input type="text" id="editUsername" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editEmail">Email address</label>
+                        <input type="email" id="editEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editMobile">Phone number</label>
+                        <input type="tel" id="editMobile" required>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="secondary-button" onclick="closeModal('editProfileModal')">Cancel</button>
+                        <button type="submit" class="primary-button">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Advanced Features Overlays -->
+    <!-- Search Overlay -->
+    <div class="search-overlay hidden" id="searchOverlay">
+        <div class="search-container">
+            <div class="search-input-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search anything..." autocomplete="off">
+                <button class="search-close" onclick="advancedFeatures.intelligentSearch.hideSearch()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="search-suggestions" id="searchSuggestions"></div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel hidden" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button class="notifications-close" onclick="advancedFeatures.realtimeNotifications.hideNotifications()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="notifications-content" id="notificationsContent">
+            <!-- Notifications will be populated here -->
+        </div>
+    </div>
+
+    <!-- Analytics Dashboard Modal -->
+    <div class="modal-overlay hidden" id="analyticsModal">
+        <div class="modal analytics-modal">
+            <div class="modal-header">
+                <h3>Analytics Dashboard</h3>
+                <button class="modal-close" onclick="advancedFeatures.analytics.hideAnalytics()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content analytics-content" id="analyticsContent">
+                <!-- Analytics charts will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="file-storage.js"></script>
+    <script src="dashboard.js"></script>
+    
+    <!-- Advanced Features Scripts -->
+    <script src="advanced-features.js"></script>
+    <script src="advanced-ui-features.js"></script>
+    <script src="advanced-analytics.js"></script>
+    
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Register Service Worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        // Initialize Advanced Features when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize advanced features
+            if (typeof AdvancedFeatures !== 'undefined') {
+                window.advancedFeatures = new AdvancedFeatures();
+            }
+        });
+    </script>
+</body>
+</html>
